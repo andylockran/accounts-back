@@ -1,7 +1,14 @@
 from django.db import models
 from django.contrib import admin
+from django_fsm.db.fields import FSMField, transition
+
 
 # Create your models here.
+
+class ExpenseManager(models.Manager):
+   "Manager for the Expenses Table"
+   def status_count(self, keyword):
+      return self.filter(state__icontains=keyword.count())
 
 class Expense(models.Model):
     "This model handles each of the potential expense lines in an invoice."
@@ -9,6 +16,7 @@ class Expense(models.Model):
         ('BANK', 'BANK'),
         ('CASH', 'CASH'),
     )
+    
     #Field Definitions
     expenseType = models.CharField(null=False,blank=False,max_length=4,choices=EXPENSE_TYPES)
     date = models.DateField(null=False, blank=False)
@@ -20,9 +28,18 @@ class Expense(models.Model):
     VAT = models.IntegerField(null=True, blank=True,max_length="40")
     EU = models.CharField(null=True, blank=True,max_length="40")
     toBeClaimedExpense = models.NullBooleanField(null=True, blank=True)
+    state = FSMField(default="min",protected=True)
+    objects = ExpenseManager()
 
     def __unicode__(self):
-       return str(self.id)
+        return str(self.id)
+
+    @transition(source="min",target="posted")
+    def post(self):
+        if self.supplierCode is None:
+            raise Exception(u'SupplierCode has not been set')
+   
+       
 
 class Supplier(models.Model):
     name = models.CharField(max_length="255")

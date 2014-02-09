@@ -28,8 +28,15 @@ class SupplierTestCase(TestCase):
 class ExpenseTestCase(TestCase):
    def setUp(self):
       Expense.objects.create(expenseType="BANK",date=datetime.today().date(), amount="24.44")
+      Supplier.objects.create(name="Des Gregory",code="DG")
    def test_minimum_info_inputted(self):
       "Test to make sure minimum inputted data is allowed"
       min = Expense.objects.get(amount="24.44")
       self.assertEqual(min.expenseType, "BANK")
-
+   def test_fail_post_if_not_enough_information(self):
+      test = Expense.objects.get(amount="24.44")
+      self.assertRaises(Exception, test.post)
+      self.assertEqual(test.state, "min")
+      test.supplierCode = Supplier.objects.get(code="DG")
+      test.post()
+      self.assertEqual(test.state, "posted")
