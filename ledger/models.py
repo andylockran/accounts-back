@@ -34,13 +34,26 @@ class Expense(models.Model):
     def __unicode__(self):
         return str(self.id)
 
-    @transition(source="min",target="posted")
-    def post(self):
+    def can_post(self):
         if self.supplierCode is None:
-            raise Exception(u'SupplierCode has not been set')
-   
-       
+             return False
+        if self.nominalCode is None:
+             return False
+        if self.invoiceRef is None:
+             return False
+        if self.VATrate is None:
+             return False
+        if self.VAT is None:
+             return False
+        if self.EU is None:
+             return False
+        if self.toBeClaimedExpense != 'Yes':
+             return False
+        return True 
 
+    @transition(source="min",target="posted", conditions=[can_post])
+    def post(self):
+       pass
 class Supplier(models.Model):
     name = models.CharField(max_length="255")
     code = models.CharField(max_length="8")

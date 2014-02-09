@@ -33,10 +33,15 @@ class ExpenseTestCase(TestCase):
       "Test to make sure minimum inputted data is allowed"
       min = Expense.objects.get(amount="24.44")
       self.assertEqual(min.expenseType, "BANK")
+   
    def test_fail_post_if_not_enough_information(self):
       test = Expense.objects.get(amount="24.44")
-      self.assertRaises(Exception, test.post)
+      self.assertFalse(test.can_post())
       self.assertEqual(test.state, "min")
       test.supplierCode = Supplier.objects.get(code="DG")
-      test.post()
-      self.assertEqual(test.state, "posted")
+      self.assertFalse(test.can_post())
+      self.assertEqual(test.state, "min")
+
+   def test_post_with_all_info(self):
+      post_test = Expense.objects.create(expenseType="BANK",date=datetime.today().date(),amount="23.55",supplierCode = Supplier.objects.get(code="DG"), nominalCode="testfo", invoiceRef="inv123",VATrate="20",VAT="20",EU="Yes",toBeClaimedExpense="Yes")
+      self.assertTrue(post_test.can_post())
