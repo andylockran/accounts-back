@@ -28,7 +28,7 @@ class Expense(models.Model):
     VAT = models.IntegerField(null=True, blank=True,max_length="40")
     EU = models.CharField(null=True, blank=True,max_length="40")
     toBeClaimedExpense = models.NullBooleanField(null=True, blank=True)
-    state = FSMField(default="min",protected=True)
+    state = FSMField(default="none",protected=True)
     objects = ExpenseManager()
 
     def __unicode__(self):
@@ -51,15 +51,29 @@ class Expense(models.Model):
              return False
         return True 
 
+    def has_min(self):
+        if self.expenseType is None:
+            return False
+        if self.date is None:
+            return False
+        if self.amount is None:
+            return False
+        return True
+
     @transition(source="min",target="posted", conditions=[can_post])
     def post(self):
        pass
+    
+    @transition(source="none",target="min",conditions=[has_min])
+    def save(self, *args, **kwargs):
+       super(Expense,self).save(*args, **kwargs)
+
 class Supplier(models.Model):
     name = models.CharField(max_length="255")
     code = models.CharField(max_length="8")
 
     def __unicode__(self):
-       return self.code
+        return self.code
 
 class Mileage(models.Model):
    date = models.DateField(null=False,blank=False)
@@ -104,7 +118,17 @@ class Customer(models.Model):
       return self.code
 
 
-admin.site.register(Expense)
+class ExpenseAdmin(admin.ModelAdmin):
+   fieldsets = [
+         (None, {'fields': ['expenseType','date','amount']}),
+         ("Required for POST", {'fields': ['supplierCode','nominalCode','invoiceRef','VATrate','VAT','EU','toBeClaimedExpense']}),
+         ("ReadOnly", {'fields': ['state']}),
+         ]
+   readonly_fields = ('state',)
+   list_display = ('amount','date','expenseType','id')
+
+
+admin.site.register(Expense,ExpenseAdmin)
 admin.site.register(Supplier)
 admin.site.register(Customer)
 admin.site.register(Mileage)
