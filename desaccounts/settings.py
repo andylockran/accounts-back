@@ -24,6 +24,10 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+TEMPLATE_DIRS = (
+      '/Users/andy/Code/DES/desaccounts/templates/'
+      )
+
 ALLOWED_HOSTS = []
 
 

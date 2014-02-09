@@ -1,0 +1,13 @@
+<html>
+   <head>
+   </head>
+   <body>
+      <h1> This is the expenses</h1>
+         {% for expense in expense_list %}
+      <ul>
+            <li>{{expense.amount}}</li>
+            <li>{{expense.date}}</li>
+      </ul>
+         {% endfor %}
+   </body>
+   </html>
