@@ -8,6 +8,11 @@
             <li>{{expense.amount}}</li>
             <li>{{expense.date}}</li>
       </ul>
-         {% endfor %}
+      {% endfor %}
+
+      <form method="post" action="submit/">{% csrf_token %}
+         {{expenseForm.as_p}}
+         <input type="submit" value="Submit" />
+      </form>
    </body>
    </html>

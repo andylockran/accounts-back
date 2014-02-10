@@ -1,7 +1,6 @@
 from django.conf.urls import patterns,include,url
 
-from ledger import views
-
-urlpatterns = patterns('',
-      url(r'^$', views.index, name="index"),
+urlpatterns = patterns('ledger.views',
+      url(r'^$', 'index', name="index"),
+      url(r'^submit/$', 'submit', name="submit"),
       )
