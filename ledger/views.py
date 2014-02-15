@@ -7,8 +7,8 @@ from ledger.forms import ExpenseForm
 # Create your views here.
 
 def index(request):
-   expense_list = Expense.objects.all()
-   template = loader.get_template('ledger/index.html');
+   expense_list = Expense.objects.all().order_by('-date')
+   template = loader.get_template('ledger/index.html')
    expenseForm = ExpenseForm()
    context = RequestContext(request, {'expense_list': expense_list,'expenseForm': expenseForm})
    return HttpResponse(template.render(context))
